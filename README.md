@@ -6,15 +6,15 @@ Just copy your Gaana playlist table, paste it into the tool, and instantly get a
 
 **Features**
 
-• No Google API / no quotas
-• Works on shared hosting
-• No login required
-• Converts entire Gaana playlists to YouTube
-• Audio / Video quality selector
-• Per-song retry for mismatches
-• One-click YouTube playlist creation
-• Export playlist as JSON
-• Fully self-hosted (HTML + PHP)
+- No Google API / no quotas
+- Works on shared hosting
+- No login required
+- Converts entire Gaana playlists to YouTube
+- Audio / Video quality selector
+- Per-song retry for mismatches
+- One-click YouTube playlist creation
+- Export playlist as JSON
+- Fully self-hosted (HTML + PHP)
 
 **How To Use**
 
