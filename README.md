@@ -20,39 +20,33 @@ Just copy your Gaana playlist table, paste it into the tool, and instantly get a
 
 **Step 1 – Copy Gaana Playlist**
 
-Open your Gaana playlist in your browser
-
-Select the entire playlist table (including headers: Track, Artists, Album, Duration)
-
-Copy it (Ctrl + C)
+1. Open your Gaana playlist in your browser
+2. Select the entire playlist table (including headers: Track, Artists, Album, Duration)
+3. Copy it (Ctrl + C)
 
 **Step 2 – Paste into Tool**
 
-Open the importer page
-
-Paste the copied table into the text box
-
-Choose Audio or Video mode
-
-Click Extract Playlist
-
-YouTube matches will load with previews.
+1. Open the importer page
+2. Paste the copied table into the text box
+3. Choose Audio or Video mode
+4. Click **Extract Playlist**
+5. YouTube matches will load with previews.
 
 **Step 3 – Fix mismatches (Optional)**
 
 If any song looks incorrect:
 
-• Click the 🔄 icon to cycle through alternate YouTube results
+• Click the ⟳ icon to cycle through alternate YouTube results
 • Continue until you find the correct version
 
 **Step 4 – Build YouTube Playlist**
 
-Click Add Entire Playlist to YouTube
+Click **Add Entire Playlist to YouTube**
 A new tab opens and automatically builds your playlist.
 
 **Step 5 – Export (Optional)**
 
-Click Export JSON to download your playlist locally.
+Click **Export JSON** to download your playlist locally.
 
 **⚠ Important Notes**
 
