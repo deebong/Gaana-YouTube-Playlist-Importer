@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Gaana → YouTube Playlist Importer</title>
+<style>
+body{background:#0f0f0f;color:#fff;font-family:Arial;padding:20px}
+textarea{width:100%;height:260px;padding:12px;border-radius:8px}
+button{padding:14px 22px;border:0;border-radius:8px;background:#00ff88;font-weight:700;margin-top:12px;cursor:pointer}
+button:hover{background:#00e37a}
+table{width:100%;border-collapse:collapse;margin-top:20px}
+th,td{border-bottom:1px solid #333;padding:10px;text-align:left}
+img{width:120px;border-radius:8px}
+.good{color:#00ff88}
+.retry{cursor:pointer;color:#ffcc00}
+.retry:hover{color:#00ff88}
+</style>
+</head>
+<body>
+
+<h2>Gaana → YouTube Playlist Importer</h2>
+<p style="color:#aaa;font-size:14px">
+Copy the full Gaana playlist table (including headers) and paste it below.
+Click <b>Load Sample</b> to see the exact format required.
+</p>
+<div style="margin-bottom:10px">
+ <label><input type="radio" name="mode" value="audio" checked> Audio</label>
+ <label style="margin-left:16px"><input type="radio" name="mode" value="video"> Video</label>
+</div>
+
+<textarea id="box" placeholder="Paste Gaana playlist here..."></textarea><br>
+
+<button onclick="loadSample()">Load Sample</button>
+<button onclick="extractAndLoad()">Extract Playlist</button>
+<button onclick="addPlaylist()">Add Entire Playlist to YouTube</button>
+<button onclick="exportJSON()">Export JSON</button>
+
+<table id="out">
+<thead><tr><th>#</th><th>Song</th><th>Preview</th><th>YouTube</th><th></th></tr></thead>
+<tbody></tbody>
+</table>
+
+<script>
+let songs=[], ytLinks=[], resultIndex=[];
+
+function loadSample(){
+box.value = `
+Track
+Artists
+Album
+Duration
+1
+Thumbi Vaa Thumbakudathin
+Premium Thumbi Vaa Thumbakudathin
+S. Janaki
+Olangal
+04:27
+2
+Thumbi Vaa - Revival - Film - Olangal
+Premium Thumbi Vaa - Revival - Film - Olangal
+S. Janaki
+S. Janaki Melodies Forever
+04:17
+3
+Pon Veene
+Premium Pon Veene
+M G Sreekumar, K. S. Chithra
+Thalavattam (Original Motion Picture Soundtrack)
+04:51
+4
+Sreeraagamo Thedunnu
+Premium Sreeraagamo Thedunnu
+Sharreth, K J Yesudas
+Pavithram (Original Motion Picture Soundtrack)
+05:07
+`.trim();
+}
+
+function parseGaana(raw){
+ const rows=raw.split(/\n+/).map(x=>x.trim()).filter(x=>x);
+ const out=[];
+ const mode=document.querySelector("input[name=mode]:checked").value;
+ for(let i=4;i<rows.length;i+=6){
+   const title=rows[i+1]?.replace(/premium/ig,"").trim();
+   const artist=rows[i+2]; const album=rows[i+3];
+   if(title){
+     out.push({
+       title,
+       query: mode==="audio"
+        ? `${title} ${artist} ${album} official audio`
+        : `${title} ${artist} ${album} hd video song`
+     });
+   }
+ }
+ return out;
+}
+
+async function extractAndLoad(){
+ songs=parseGaana(box.value);
+ ytLinks=[]; resultIndex=[];
+ const tb=out.querySelector("tbody"); tb.innerHTML="";
+ for(let i=0;i<songs.length;i++){
+  resultIndex[i]=0;
+  const yt=await fetch("api.php?q="+encodeURIComponent(songs[i].query)+"&i=0").then(r=>r.json());
+  ytLinks[i]=yt?.url||null;
+  tb.innerHTML+=row(i,yt);
+  await new Promise(r=>setTimeout(r,600));
+ }
+}
+
+function row(i,yt){
+ return `<tr>
+  <td>${i+1}</td>
+  <td>${songs[i].title}</td>
+  <td>${yt?`<img src="${yt.thumb}">`:""}</td>
+  <td>${yt?`<a class="good" target="_blank" href="${yt.url}">Play</a>`:"Not found"}</td>
+  <td><span class="retry" onclick="retry(${i})">⟳</span></td>
+ </tr>`;
+}
+
+async function retry(i){
+ resultIndex[i]++;
+ const yt=await fetch("api.php?q="+encodeURIComponent(songs[i].query)+"&i="+resultIndex[i]).then(r=>r.json());
+ if(!yt) return alert("No more results");
+ ytLinks[i]=yt.url;
+ out.querySelector("tbody").children[i].outerHTML=row(i,yt);
+}
+
+function addPlaylist(){
+ const ids = ytLinks.filter(Boolean).map(u=>u.split("v=")[1]);
+ if(!ids.length) return alert("No videos found!");
+
+ const win = window.open("about:blank","_blank");
+ let c=0;
+ const timer=setInterval(()=>{
+   win.document.body.innerHTML="<h2>Building your playlist… ("+(c++)+"/"+ids.length+")</h2>";
+ },500);
+
+ fetch("api.php",{method:"POST",body:new URLSearchParams({ids:JSON.stringify(ids)})})
+   .then(r=>r.text()).then(u=>{clearInterval(timer);win.location.href=u;});
+}
+
+function exportJSON(){
+ const clean = ytLinks.filter(Boolean);
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(new Blob([JSON.stringify(clean,null,2)]));
+ a.download="playlist.json";a.click();
+}
+</script>
+</body>
+</html>
